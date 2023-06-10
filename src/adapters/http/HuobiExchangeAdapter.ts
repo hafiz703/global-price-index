@@ -5,12 +5,11 @@ import { injectable, registry } from 'tsyringe';
 @injectable()
 @registry([{ token: 'Exchanges', useClass: HuobiExchangeAdapter }])
 export class HuobiExchangeAdapter implements ExchangePort {
-  private readonly requestString: string = 'https://api.huobi.pro/market/depth?&depth=5&type=step0&symbol=btcusd';
+  private readonly requestString: string = 'https://api.huobi.pro/market/depth?&depth=5&type=step0&symbol=btcusdt';
 
   async getMidPrice(): Promise<number> {
     const response = await fetch(this.requestString);
     const responseObject = await response.json();
-
     if (responseObject !== null &&  responseObject['tick'] !== null ) {
         const bids = responseObject['tick']['bids'];
         const asks = responseObject['tick']['asks'];

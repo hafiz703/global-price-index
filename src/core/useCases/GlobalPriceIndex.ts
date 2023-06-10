@@ -1,18 +1,32 @@
-import { inject, injectable } from 'tsyringe';
+import { injectAll, injectable } from 'tsyringe';
 import { ExchangePort } from '../../interfaces/ExchangePort.js';
-import { HuobiExchangeAdapter } from '../../adapters/exchanges/HuobiExchangeAdapter.js';
-import { KrakenExchangeAdapter } from '../../adapters/exchanges/KrakenExchangeAdapter.js';
 
 @injectable()
 export class GlobalPriceIndexUseCase {
   constructor(
-    @inject(HuobiExchangeAdapter) private exchange: ExchangePort
-    // @inject(KrakenExchangeAdapter) private exchange: ExchangePort
+    @injectAll('Exchanges') private exchanges: ExchangePort[]
   ) {}
 
   async execute(): Promise<number> {
-    const exchangePrice = await this.exchange.getMidPrice();
-    return exchangePrice;
+    const prices: number[] = [];
+
+    for (const exchange of this.exchanges) {
+      const price= await exchange.getMidPrice();
+      if (price !== null) {
+        prices.push(price);
+      }
+    }
+
+    // Aggregate the prices from different exchanges (e.g., taking an average)
+    const aggregatedPrice = this.aggregatePrices(prices);
+
+    return aggregatedPrice;
+  }
+  private aggregatePrices(prices: number[]): number {
+    // Perform the aggregation logic here (e.g., taking an average)
+    const total = prices.reduce((sum, price) => sum + price, 0);
+    const average = total / prices.length;
+    return parseFloat(average.toFixed(2));
   }
 
 }
