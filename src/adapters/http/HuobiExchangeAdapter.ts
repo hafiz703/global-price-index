@@ -1,30 +1,34 @@
-import { ExchangePort } from '../../interfaces/ExchangePort.js';
 import fetch from 'node-fetch';
 import { injectable, registry } from 'tsyringe';
+import { ExchangePortHttp } from '../../interfaces/ExchangePortHttp.js';
 
 @injectable()
 @registry([{ token: 'Exchanges', useClass: HuobiExchangeAdapter }])
-export class HuobiExchangeAdapter implements ExchangePort {
+export class HuobiExchangeAdapter implements ExchangePortHttp {
   private readonly requestString: string = 'https://api.huobi.pro/market/depth?&depth=5&type=step0&symbol=btcusdt';
-
-  async getMidPrice(): Promise<number> {
+  
+  async getOrderBook(): Promise<[string[], string[]]> {
     const response = await fetch(this.requestString);
-    const responseObject = await response.json();
-    if (responseObject !== null &&  responseObject['tick'] !== null ) {
-        const bids = responseObject['tick']['bids'];
-        const asks = responseObject['tick']['asks'];
-        return this.calculateMidPrice(bids,asks);
-      }
+    const responseObject = await response.json() as { tick?: { bids?: string[]; asks?: string[] } };
+  
+    const bids = responseObject?.tick?.bids;
+    const asks = responseObject?.tick?.asks;
+    
+    return bids && asks ? [bids, asks] : null;
 
-    return null;
-  } 
+  }
 
-  calculateMidPrice(bids:[string, string], asks: [string, string]){
+  calculateMidPrice(bids: string[], asks: string[]){
     const bestBid = parseFloat(bids[0]);
     const bestAsk = parseFloat(asks[0]);
     const midPrice = (bestBid + bestAsk) / 2.0;
     return midPrice;
 
+}
+
+async getMidPrice(): Promise<number> {
+  const [bids, asks] = await this.getOrderBook();
+  return bids && asks ? this.calculateMidPrice(bids, asks) : null;
 }
 
 }

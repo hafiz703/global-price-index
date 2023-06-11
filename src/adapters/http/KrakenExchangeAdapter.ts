@@ -1,31 +1,34 @@
-import { ExchangePort } from '../../interfaces/ExchangePort.js';
 import fetch from 'node-fetch';
 import { injectable, registry } from 'tsyringe';
+import { ExchangePortHttp } from '../../interfaces/ExchangePortHttp.js';
 
 @injectable()
 @registry([{ token: 'Exchanges', useClass: KrakenExchangeAdapter }])
-export class KrakenExchangeAdapter implements ExchangePort {
+export class KrakenExchangeAdapter implements ExchangePortHttp {
   private readonly requestString: string = 'https://api.kraken.com/0/public/Depth?count=1&pair=XBTUSD';
 
-  async getMidPrice(): Promise<number> {
+  async getOrderBook(): Promise<[string[], string[]]> {
     const response = await fetch(this.requestString);
-    const responseObject = await response.json();
-    console.log(responseObject);
-    if (responseObject !== null &&  responseObject['result'] !== null && responseObject['XXBTZUSD'] !== null) {
-        const bids = responseObject['result']['XXBTZUSD']['bids'];
-        const asks = responseObject['result']['XXBTZUSD']['asks'];
-        return this.calculateMidPrice(bids,asks);
-      }
+    const responseObject = await response.json() as {
+      result?: { XXBTZUSD?: { bids?: string[], asks?: string[] } }
+    };
+    const bids = responseObject?.result?.XXBTZUSD?.bids ?? null;
+    const asks = responseObject?.result?.XXBTZUSD?.asks ?? null;
 
-    return null;
+    return bids && asks ? [bids, asks] : null;
   }
 
-  calculateMidPrice(bids:[string, string, string], asks: [string, string, string]){
-        const bestBid = parseFloat(bids[0]);
-        const bestAsk = parseFloat(asks[0]);
-        const midPrice = (bestBid + bestAsk) / 2.0;
-        return midPrice;
+  calculateMidPrice(bids: string[], asks: string[]): number {
+    const bestBid = parseFloat(bids[0]);
+    const bestAsk = parseFloat(asks[0]);
+    const midPrice = (bestBid + bestAsk) / 2.0;
+    return midPrice;
 
+  }
+
+  async getMidPrice(): Promise<number> {
+    const [bids, asks] = await this.getOrderBook();
+    return bids && asks ? this.calculateMidPrice(bids, asks) : null;
   }
 
 }

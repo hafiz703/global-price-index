@@ -17,14 +17,11 @@ export class GlobalPriceIndexUseCase {
       }
     }
 
-    // Aggregate the prices from different exchanges (e.g., taking an average)
-    const aggregatedPrice = this.aggregatePrices(prices);
-
-    return aggregatedPrice;
+    return this.aggregatePrices(prices);
   }
   private aggregatePrices(prices: number[]): number {
-    // Perform the aggregation logic here (e.g., taking an average)
     const total = prices.reduce((sum, price) => sum + price, 0);
+    console.log(prices.length)
     const average = total / prices.length;
     return parseFloat(average.toFixed(2));
   }
