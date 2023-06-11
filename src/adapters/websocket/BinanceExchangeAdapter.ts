@@ -3,7 +3,6 @@ import { ExchangePort } from '../../interfaces/ExchangePort.js';
 import { injectable, registry } from 'tsyringe';
 
 @injectable()
-@registry([{ token: 'Exchanges', useClass: BinanceExchangeAdapter }])
 export class BinanceExchangeAdapter implements ExchangePort {
     private socket: WebSocket;
     private latestBestBid: number = 0;
@@ -11,28 +10,37 @@ export class BinanceExchangeAdapter implements ExchangePort {
     private readonly requestString: string = 'wss://stream.binance.com:9443/ws';
     private readonly depthStream: string = 'btcusdt@depth';
     constructor() {
-        console.log("Binance constructor")
+        this.initializeWebSocket();
+    }
+
+    private initializeWebSocket(): void {
         this.socket = new WebSocket(this.requestString);
         this.socket.on('open', () => {
             this.socket.send(JSON.stringify({ method: 'SUBSCRIBE', params: [this.depthStream], id: 1 }));
         });
 
         this.socket.on('message', (data: WebSocket.Data) => {
-            const message = JSON.parse(data.toString());
+            const streamData = JSON.parse(data.toString());
             try {
-                this.latestBestBid = parseFloat(message['b'][0]);
+                this.latestBestBid = parseFloat(streamData['b'][0]);
             } catch (error) {
-                console.error(message);
+                console.error('Error parsing best bid:', error);
             }
 
             try {
-                this.latestBestAsk = parseFloat(message['a'][0]);
+                this.latestBestAsk = parseFloat(streamData['a'][0]);
             } catch (error) {
-                console.error(message);
+                console.error('Error parsing best ask:', error);
             }
-        
         });
 
+        this.socket.on('close', () => {
+            console.log('WebSocket connection closed');
+        });
+
+        this.socket.on('error', (error) => {
+            console.error('WebSocket error:', error);
+        });
     }
 
     async getMidPrice(): Promise<number> {
@@ -40,7 +48,6 @@ export class BinanceExchangeAdapter implements ExchangePort {
             return null;
         }
         const midPrice = (this.latestBestBid + this.latestBestAsk) / 2.0;
-        console.log("Binance Mid :"+midPrice);
         return midPrice;
     }
 

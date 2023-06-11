@@ -3,12 +3,15 @@ import { injectable, registry } from 'tsyringe';
 import { ExchangePortHttp } from '../../interfaces/ExchangePortHttp.js';
 
 @injectable()
-@registry([{ token: 'Exchanges', useClass: KrakenExchangeAdapter }])
 export class KrakenExchangeAdapter implements ExchangePortHttp {
   private readonly requestString: string = 'https://api.kraken.com/0/public/Depth?count=1&pair=XBTUSD';
 
   async getOrderBook(): Promise<[string[], string[]]> {
     const response = await fetch(this.requestString);
+    if (!response.ok) {
+      console.error('Failed to fetch order book data');
+      return null;
+    }
     const responseObject = await response.json() as {
       result?: { XXBTZUSD?: { bids?: string[], asks?: string[] } }
     };

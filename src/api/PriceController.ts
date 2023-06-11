@@ -1,15 +1,13 @@
-// api/priceController.ts
-
 import { Request, Response } from 'express';
 import { PriceService } from '../core/services/PriceService.js';
 import { container } from 'tsyringe';
 
-export async function getPriceIndex(_req: Request, res: Response): Promise<void> {
+export async function getGlobalPriceIndex(_req: Request, res: Response): Promise<void> {
 
   const priceService = container.resolve(PriceService);
   try {
     const priceIndex = await priceService.getGlobalPriceIndex();
-    console.log("PRICEINDEX: " + priceIndex)
+    console.log("Global Price Index: " + priceIndex)
     res.json({ priceIndex });
   } catch (error) {
     console.error(error);
