@@ -35,9 +35,9 @@ describe('GlobalPriceIndex Unit Test', () => {
         const result1 = globalPriceIndexUseCase.aggregatePrices(test1);
         const result2 = globalPriceIndexUseCase.aggregatePrices(test2);
         const result3 = globalPriceIndexUseCase.aggregatePrices(test3);
-        expect(result1).toBe(NaN);
-        expect(result2).toBe(101.5);
-        expect(result3).toBe(100);
+        expect(result1).toEqual(NaN);
+        expect(result2).toEqual(101.5);
+        expect(result3).toEqual(100);
         
     });
     
@@ -53,7 +53,7 @@ describe('GlobalPriceIndex Unit Test', () => {
         const globalPriceIndexUseCase = container.resolve(GlobalPriceIndexUseCase);
         const result = await globalPriceIndexUseCase.execute();
     
-        expect(result).toBe(10000.27);
+        expect(result).toEqual(10000.27);
     });
 })
 

@@ -21,7 +21,7 @@ export class GlobalPriceIndexUseCase {
   }
   aggregatePrices(prices: number[]): number {
     const total = prices.reduce((sum, price) => sum + price, 0);
-    console.log(prices.length)
+    console.info(`Getting average from ${prices.length} exchanges`)
     const average = total / prices.length;
     return parseFloat(average.toFixed(2));
   }

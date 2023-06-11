@@ -4,7 +4,7 @@ import { injectable } from 'tsyringe';
 
 @injectable()
 export class BinanceExchangeAdapter implements ExchangePort {
-    private socket: WebSocket;
+    socket: WebSocket;
     private latestBestBid: number = 0;
     private latestBestAsk: number = 0;
     private readonly requestString: string = 'wss://stream.binance.com:9443/ws';

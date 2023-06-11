@@ -37,8 +37,12 @@ export class KrakenExchangeAdapter implements ExchangePortHttp {
   }
 
   async getMidPrice(): Promise<number> {
-    const [bids, asks] = await this.getOrderBook();
-    return bids && asks ? this.calculateMidPrice(bids, asks) : null;
+    const orders = await this.getOrderBook();
+    if (orders === null){
+      return null;
+    }
+    const [bids, asks] = orders;
+    return this.calculateMidPrice(bids, asks);
   }
 
 }

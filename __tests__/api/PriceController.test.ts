@@ -33,7 +33,7 @@ describe('PriceController Unit Test', () => {
         jest.clearAllMocks();
     });
 
-    test('should return the price index when successful', async () => {
+    test('getGlobalPriceIndex() should return the price index when successful', async () => {
         // Setup dependencies
         const mockGlobalPriceIndexUseCase = container.resolve(GlobalPriceIndexUseCase);
         const priceServiceMock: Partial<PriceService> = {
@@ -51,7 +51,7 @@ describe('PriceController Unit Test', () => {
         expect(res.status).toHaveBeenCalledTimes(0);
     });
 
-    test('should return an error when price index is NaN', async () => {
+    test('getGlobalPriceIndex() should return an error when price index is NaN', async () => {
         // Setup dependencies
         container.resolve(GlobalPriceIndexUseCase);
         const priceServiceMock: Partial<PriceService> = {
@@ -67,7 +67,7 @@ describe('PriceController Unit Test', () => {
 
     });
 
-    test('should return an error when an exception is thrown', async () => {
+    test('getGlobalPriceIndex() should return an error when an exception is thrown', async () => {
         const errorMessage = 'Internal server error';
         container.resolve(GlobalPriceIndexUseCase);
 
