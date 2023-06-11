@@ -19,7 +19,7 @@ export class GlobalPriceIndexUseCase {
 
     return this.aggregatePrices(prices);
   }
-  private aggregatePrices(prices: number[]): number {
+  aggregatePrices(prices: number[]): number {
     const total = prices.reduce((sum, price) => sum + price, 0);
     console.log(prices.length)
     const average = total / prices.length;

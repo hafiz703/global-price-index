@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import { ExchangePort } from '../../interfaces/ExchangePort.js';
-import { injectable, registry } from 'tsyringe';
+import { injectable } from 'tsyringe';
 
 @injectable()
 export class BinanceExchangeAdapter implements ExchangePort {
@@ -36,6 +36,8 @@ export class BinanceExchangeAdapter implements ExchangePort {
 
         this.socket.on('close', () => {
             console.log('WebSocket connection closed');
+            this.latestBestBid = 0;
+            this.latestBestAsk = 0;
         });
 
         this.socket.on('error', (error) => {
@@ -44,6 +46,9 @@ export class BinanceExchangeAdapter implements ExchangePort {
     }
 
     async getMidPrice(): Promise<number> {
+        if (this.socket == null || this.socket.readyState === WebSocket.CLOSED) {
+            this.initializeWebSocket();
+        }
         if (this.latestBestBid == 0 || this.latestBestAsk == 0) {
             return null;
         }

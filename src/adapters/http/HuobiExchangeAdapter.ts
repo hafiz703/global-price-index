@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { injectable, registry } from 'tsyringe';
+import { injectable } from 'tsyringe';
 import { ExchangePortHttp } from '../../interfaces/ExchangePortHttp.js';
 
 @injectable()
@@ -12,12 +12,21 @@ export class HuobiExchangeAdapter implements ExchangePortHttp {
       console.error('Failed to fetch order book data');
       return null;
     }
-    const responseObject = await response.json() as { tick?: { bids?: string[]; asks?: string[] } };
+    try {
+      const responseObject = await response.json() as { tick?: { bids?: string[]; asks?: string[] } };
 
-    const bids = responseObject?.tick?.bids;
-    const asks = responseObject?.tick?.asks;
+      const bids = responseObject?.tick?.bids;
+      const asks = responseObject?.tick?.asks;
 
-    return bids && asks ? [bids, asks] : null;
+      return bids && asks ? [bids, asks] : null;
+
+    } catch (error) {
+
+      console.error('Error parsing order book data:', error);
+    }
+
+    return null;
+
 
   }
 
