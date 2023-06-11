@@ -9,9 +9,9 @@ describe('BinanceExchangeAdapter', () => {
   let binanceAdapter: BinanceExchangeAdapter;
 
   beforeEach(() => {
+    jest.mock('ws');
     container.registerSingleton<ExchangePort>('Exchanges', BinanceExchangeAdapter);
     binanceAdapter = container.resolve(BinanceExchangeAdapter);
-    jest.mock('ws');
   });
 
   afterEach(() => {
