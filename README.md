@@ -23,6 +23,7 @@ Clone this repo into your directory of choice and run the following in a termina
 ```
 cd <project_dir>
 npm install
+npm run build
 npm run start
 ```
 
