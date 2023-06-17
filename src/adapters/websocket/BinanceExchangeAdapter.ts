@@ -4,17 +4,16 @@ import { injectable } from 'tsyringe';
 
 @injectable()
 export class BinanceExchangeAdapter implements ExchangePort {
-    socket: WebSocket;
+    private socket: WebSocket;
     private latestBestBid: number = 0;
     private latestBestAsk: number = 0;
     private readonly requestString: string = 'wss://stream.binance.com:9443/ws';
     private readonly depthStream: string = 'btcusdt@depth';
-    constructor() {
+    constructor(socket?: WebSocket) {
+        this.socket = socket || new WebSocket(this.requestString);
         this.initializeWebSocket();
     }
-
     private initializeWebSocket(): void {
-        this.socket = new WebSocket(this.requestString);
         this.socket.on('open', () => {
             this.socket.send(JSON.stringify({ method: 'SUBSCRIBE', params: [this.depthStream], id: 1 }));
         });
@@ -46,7 +45,7 @@ export class BinanceExchangeAdapter implements ExchangePort {
     }
 
     async getMidPrice(): Promise<number> {
-        if (this.socket == null || this.socket.readyState === WebSocket.CLOSED) {
+        if (this.socket == null || this.socket.readyState === this.socket.CLOSED) {
             this.initializeWebSocket();
         }
         if (this.latestBestBid == 0 || this.latestBestAsk == 0) {
@@ -54,6 +53,16 @@ export class BinanceExchangeAdapter implements ExchangePort {
         }
         const midPrice = (this.latestBestBid + this.latestBestAsk) / 2.0;
         return midPrice;
+    }
+
+    getBestBid(): number{
+        return this.latestBestBid;
+    }
+    getBestAsk(): number{
+        return this.latestBestAsk;
+    }
+    getSocket(): WebSocket{
+        return this.socket;
     }
 
 }
