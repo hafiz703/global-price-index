@@ -8,16 +8,16 @@ export class GlobalPriceIndexUseCase {
   ) {}
 
   async execute(): Promise<number> {
-    const prices: number[] = [];
+    const promises: Promise<number | null>[] = [];
 
     for (const exchange of this.exchanges) {
-      const price= await exchange.getMidPrice();
-      if (price !== null) {
-        prices.push(price);
-      }
+      promises.push(exchange.getMidPrice());
     }
+  
+    const prices = await Promise.all(promises);
+    const validPrices = prices.filter(price => price !== null) as number[];
 
-    return this.aggregatePrices(prices);
+    return this.aggregatePrices(validPrices);
   }
   aggregatePrices(prices: number[]): number {
     const total = prices.reduce((sum, price) => sum + price, 0);
