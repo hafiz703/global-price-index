@@ -4,7 +4,7 @@ import { BinanceExchangeAdapter } from "../adapters/websocket/BinanceExchangeAda
 import { ExchangePort } from "../interfaces/ExchangePort.js";
 
 export const ExchangeMappings: Record<string, new () => ExchangePort> = {
-    Binance: BinanceExchangeAdapter,
-    Kraken: KrakenExchangeAdapter,
-    Huobi: HuobiExchangeAdapter
-  };
+  Binance: BinanceExchangeAdapter,
+  Kraken: KrakenExchangeAdapter,
+  Huobi: HuobiExchangeAdapter
+};

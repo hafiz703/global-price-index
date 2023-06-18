@@ -9,8 +9,8 @@ export class BinanceExchangeAdapter implements ExchangePort {
     private latestBestAsk: number = 0;
     private readonly requestString: string = 'wss://stream.binance.com:9443/ws';
     private readonly depthStream: string = 'btcusdt@depth';
-    constructor(socket?: WebSocket) {
-        this.socket = socket || new WebSocket(this.requestString);
+    constructor( socket: WebSocket = null) {
+        this.socket = socket != null ? socket : new WebSocket(this.requestString);
         this.initializeWebSocket();
     }
     private initializeWebSocket(): void {
